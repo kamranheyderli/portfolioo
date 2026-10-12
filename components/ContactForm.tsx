@@ -7,11 +7,9 @@ import { useT } from "./LangProvider";
 import Magnetic from "./Magnetic";
 import ThankYou from "./ThankYou";
 import { play } from "@/lib/sound";
+import { FORMSPREE_ENDPOINT } from "@/lib/site";
 
 type Status = "idle" | "sending" | "success" | "error";
-
-// Mesajlar Formspree hesabına bağlı e-poçta (kamranheyderli33@gmail.com) gəlir
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/mwlvnkke";
 
 export default function ContactForm() {
   const t = useT().contact.form;

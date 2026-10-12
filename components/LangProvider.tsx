@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { dict, languages, type Lang } from "@/lib/i18n";
 import { extra } from "@/lib/i18n-extra";
+import { more } from "@/lib/i18n-more";
 
 const STORAGE_KEY = "lang";
 
@@ -46,4 +47,8 @@ export function useT() {
 
 export function useX() {
   return extra[useLang().lang];
+}
+
+export function useM() {
+  return more[useLang().lang];
 }

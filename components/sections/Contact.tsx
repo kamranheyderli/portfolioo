@@ -4,6 +4,8 @@ import Reveal from "@/components/Reveal";
 import Scramble from "@/components/Scramble";
 import Magnetic from "@/components/Magnetic";
 import ContactForm from "@/components/ContactForm";
+import LiveStatus from "@/components/LiveStatus";
+import QrCard from "@/components/QrCard";
 import { profile } from "@/lib/data";
 import { useT } from "@/components/LangProvider";
 
@@ -17,6 +19,9 @@ export default function Contact() {
           {t.contact.line1} <br />
           <span className="gradient-text">{t.contact.highlight}</span>{t.contact.line2}
         </h2>
+      </Reveal>
+      <Reveal delay={0.15}>
+        <LiveStatus />
       </Reveal>
       <Reveal delay={0.2} className="form-wrap">
         <ContactForm />
@@ -39,6 +44,7 @@ export default function Contact() {
             <a key={s.label} href={s.href} target="_blank" rel="noreferrer" data-hover>{s.label}</a>
           ))}
         </div>
+        <QrCard />
       </Reveal>
       <footer>
         <span>© {new Date().getFullYear()} {profile.name}</span>

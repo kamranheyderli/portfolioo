@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, Manrope } from "next/font/google";
+import { Space_Grotesk, Inter, Manrope, Pixelify_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { LangProvider } from "@/components/LangProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { IntroProvider } from "@/components/Preloader";
 import { introInitScript, themeInitScript } from "@/lib/initScripts";
 import SmoothScroll from "@/components/SmoothScroll";
+import Toaster from "@/components/Toaster";
+import KonamiRetro from "@/components/KonamiRetro";
+import TabPresence from "@/components/TabPresence";
 import { profile } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
 
@@ -13,6 +17,8 @@ import { siteUrl } from "@/lib/site";
 const display = Space_Grotesk({ subsets: ["latin", "latin-ext"], variable: "--font-display", adjustFontFallback: false });
 const displayCyr = Manrope({ subsets: ["cyrillic"], weight: ["600", "700", "800"], variable: "--font-display-cyr" });
 const body = Inter({ subsets: ["latin", "latin-ext", "cyrillic"], variable: "--font-body" });
+// Yalnız retro rejimdə (Konami kodu) istifadə olunur — əvvəlcədən yüklənmir
+const pixel = Pixelify_Sans({ subsets: ["latin", "latin-ext", "cyrillic"], variable: "--font-pixel", preload: false });
 
 const title = `${profile.name} — ${profile.role}`;
 const description =
@@ -45,7 +51,7 @@ const personJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="az" data-theme="dark" suppressHydrationWarning className={`${display.variable} ${displayCyr.variable} ${body.variable}`}>
+    <html lang="az" data-theme="dark" suppressHydrationWarning className={`${display.variable} ${displayCyr.variable} ${body.variable} ${pixel.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript + ";" + introInitScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
@@ -56,9 +62,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <IntroProvider>
               <SmoothScroll />
               {children}
+              <Toaster />
+              <KonamiRetro />
+              <TabPresence />
             </IntroProvider>
           </LangProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

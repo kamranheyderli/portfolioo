@@ -3,11 +3,17 @@
 
 export const SOUND_KEY = "sound";
 
-export type SoundName = "click" | "key" | "enter" | "error" | "open" | "close" | "toggle" | "success" | "eat" | "gameover";
+export type SoundName = "click" | "key" | "enter" | "error" | "open" | "close" | "toggle" | "success" | "eat" | "gameover" | "powerup" | "powerdown";
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let enabled: boolean | null = null;
+let retro = false;
+
+// Retro rejimdə klik səsləri 8-bit (kvadrat dalğa) olur
+export function setRetroSound(on: boolean) {
+  retro = on;
+}
 const listeners = new Set<() => void>();
 
 function readPref() {
@@ -94,7 +100,18 @@ export function play(name: SoundName, { force = false } = {}) {
 
   switch (name) {
     case "click":
-      tone(ac, { from: 1400, to: 700, dur: 0.05, type: "triangle", gain: 0.5 });
+      if (retro) tone(ac, { from: 880, to: 440, dur: 0.06, type: "square", gain: 0.12 });
+      else tone(ac, { from: 1400, to: 700, dur: 0.05, type: "triangle", gain: 0.5 });
+      break;
+    case "powerup":
+      [262, 330, 392, 523, 659, 784, 1047].forEach((f, i) =>
+        tone(ac, { from: f, dur: 0.09, type: "square", gain: 0.13, at: i * 0.06 }),
+      );
+      break;
+    case "powerdown":
+      [784, 523, 392, 262].forEach((f, i) =>
+        tone(ac, { from: f, dur: 0.1, type: "square", gain: 0.13, at: i * 0.07 }),
+      );
       break;
     case "key":
       // Hər düymə bir az fərqli səslənsin

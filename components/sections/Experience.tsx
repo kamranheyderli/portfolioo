@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 import Reveal from "@/components/Reveal";
 import Scramble from "@/components/Scramble";
 import { companies } from "@/lib/data";
@@ -28,7 +29,15 @@ function TiltCard({ job, i }: { job: Job; i: number }) {
 
   return (
     <Reveal delay={i * 0.1} className="timeline-item">
-      <span className="dot" style={{ background: job.color, boxShadow: `0 0 20px ${job.color}` }} />
+      {/* Dolan xətt nöqtəyə çatanda nöqtə "yanır" */}
+      <motion.span
+        className="dot"
+        style={{ background: job.color }}
+        initial={{ scale: 0.6, opacity: 0.35, boxShadow: `0 0 0px ${job.color}` }}
+        whileInView={{ scale: 1, opacity: 1, boxShadow: `0 0 22px ${job.color}` }}
+        viewport={{ margin: "0px 0px -45% 0px" }}
+        transition={{ type: "spring", stiffness: 300, damping: 18 }}
+      />
       <div
         ref={ref}
         className="card glass"
@@ -53,12 +62,17 @@ function TiltCard({ job, i }: { job: Job; i: number }) {
 export default function Experience() {
   const t = useT();
   const jobs: Job[] = companies.map((c, i) => ({ ...c, ...t.experience.jobs[i] }));
+  const timelineRef = useRef<HTMLDivElement>(null);
+  // Scroll etdikcə timeline xətti yuxarıdan aşağı dolur
+  const { scrollYProgress } = useScroll({ target: timelineRef, offset: ["start 70%", "end 55%"] });
+  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
   return (
     <section id="experience" className="section projects">
       <div className="col right">
         <Reveal><p className="label"><Scramble text={t.experience.label} /></p></Reveal>
         <Reveal delay={0.1}><h2>{t.experience.title}</h2></Reveal>
-        <div className="timeline">
+        <div className="timeline" ref={timelineRef}>
+          <motion.span className="timeline-fill" style={{ scaleY: fill }} aria-hidden />
           {jobs.map((job, i) => <TiltCard key={job.company} job={job} i={i} />)}
         </div>
 
