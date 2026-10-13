@@ -11,6 +11,7 @@ import { FORMSPREE_ENDPOINT } from "@/lib/site";
 import { useLang, useT } from "./LangProvider";
 import { useTheme } from "./ThemeProvider";
 import Snake from "./Snake";
+import { OPEN_SHORTCUTS_EVENT } from "./ShortcutsHelp";
 import Matrix from "./Matrix";
 import TypingTest from "./TypingTest";
 
@@ -57,6 +58,7 @@ const COMMANDS: Record<string, string> = {
   "hire-me": "send me a project request, right here",
   neofetch: "system info, but it's me",
   resume: "open the printable CV page",
+  shortcuts: "all keyboard shortcuts & secrets (or press ?)",
   clear: "clear the terminal",
   exit: "close the terminal",
 };
@@ -316,6 +318,11 @@ export default function Terminal() {
           { kind: "accent", text: "Let's talk about your project 🤝  (type 'cancel' anytime)" },
           { kind: "accent", text: HIRE_STEPS[0].q },
         ];
+      case "shortcuts":
+      case "?":
+        setOpen(false);
+        setTimeout(() => window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT)), 250);
+        return [];
       case "sudo":
         return [{ kind: "err", text: "Permission denied. Nice try 😄" }];
       case "exit":

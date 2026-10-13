@@ -7,6 +7,9 @@ export type More = {
   retro: { on: string; off: string };
   qr: { button: string; title: string; hint: string; download: string; close: string };
   cv: { print: string; back: string; summary: string; contact: string; hint: string };
+  season: { novruz: string; winter: string };
+  copy: { label: string; done: string };
+  keys: { title: string; close: string; items: { keys: string; text: string }[] };
 };
 
 export const more: Record<Lang, More> = {
@@ -34,6 +37,19 @@ export const more: Record<Lang, More> = {
       contact: "Əlaqə",
       hint: "Bu səhifə çap üçün hazırlanıb: ⌘P / Ctrl+P → “PDF kimi saxla”.",
     },
+    season: { novruz: "🔥 Novruz bayramınız mübarək!", winter: "❄️ Yeni iliniz mübarək!" },
+    copy: { label: "E-poçtu kopyala", done: "E-poçt kopyalandı 📋" },
+    keys: {
+      title: "Qısayollar və gizli şeylər",
+      close: "Bağla",
+      items: [
+        { keys: "⌘ K / Ctrl K", text: "Terminalı aç — help, hire-me, snake, typing, matrix..." },
+        { keys: "?", text: "Bu pəncərə" },
+        { keys: "Esc", text: "Pəncərəni / terminalı bağla" },
+        { keys: "↑ ↑ ↓ ↓ ← → ← → B A", text: "Retro (8-bit) rejim" },
+        { keys: "3D loqoya klik", text: "Hissəciklər partlayır" },
+      ],
+    },
   },
   en: {
     status: {
@@ -59,6 +75,19 @@ export const more: Record<Lang, More> = {
       contact: "Contact",
       hint: "This page is print-ready: ⌘P / Ctrl+P → “Save as PDF”.",
     },
+    season: { novruz: "🔥 Happy Novruz!", winter: "❄️ Happy New Year!" },
+    copy: { label: "Copy email", done: "Email copied 📋" },
+    keys: {
+      title: "Shortcuts & secrets",
+      close: "Close",
+      items: [
+        { keys: "⌘ K / Ctrl K", text: "Open the terminal — help, hire-me, snake, typing, matrix..." },
+        { keys: "?", text: "This window" },
+        { keys: "Esc", text: "Close window / terminal" },
+        { keys: "↑ ↑ ↓ ↓ ← → ← → B A", text: "Retro (8-bit) mode" },
+        { keys: "Click the 3D logo", text: "Particles burst" },
+      ],
+    },
   },
   ru: {
     status: {
@@ -83,6 +112,19 @@ export const more: Record<Lang, More> = {
       summary: "О себе",
       contact: "Контакты",
       hint: "Страница готова к печати: ⌘P / Ctrl+P → «Сохранить как PDF».",
+    },
+    season: { novruz: "🔥 С праздником Новруз!", winter: "❄️ С Новым годом!" },
+    copy: { label: "Скопировать e-mail", done: "E-mail скопирован 📋" },
+    keys: {
+      title: "Горячие клавиши и секреты",
+      close: "Закрыть",
+      items: [
+        { keys: "⌘ K / Ctrl K", text: "Открыть терминал — help, hire-me, snake, typing, matrix..." },
+        { keys: "?", text: "Это окно" },
+        { keys: "Esc", text: "Закрыть окно / терминал" },
+        { keys: "↑ ↑ ↓ ↓ ← → ← → B A", text: "Ретро-режим (8-bit)" },
+        { keys: "Клик по 3D-логотипу", text: "Частицы разлетаются" },
+      ],
     },
   },
 };

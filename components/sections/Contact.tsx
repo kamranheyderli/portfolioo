@@ -6,6 +6,7 @@ import Magnetic from "@/components/Magnetic";
 import ContactForm from "@/components/ContactForm";
 import LiveStatus from "@/components/LiveStatus";
 import QrCard from "@/components/QrCard";
+import CopyEmail from "@/components/CopyEmail";
 import { profile } from "@/lib/data";
 import { useT } from "@/components/LangProvider";
 
@@ -28,12 +29,15 @@ export default function Contact() {
       </Reveal>
       <Reveal delay={0.25}>
         <p className="contact-or">{t.contact.or}</p>
-        <Magnetic strength={0.2}>
-          <a href={`mailto:${profile.email}`} className="cta" data-hover>
-            {profile.email}
-            <span>→</span>
-          </a>
-        </Magnetic>
+        <div className="cta-row">
+          <Magnetic strength={0.2}>
+            <a href={`mailto:${profile.email}`} className="cta" data-hover>
+              {profile.email}
+              <span>→</span>
+            </a>
+          </Magnetic>
+          <CopyEmail />
+        </div>
       </Reveal>
       <Reveal delay={0.3}>
         <a href={`tel:${profile.phone.replace(/\s/g, "")}`} className="phone" data-hover>{profile.phone}</a>

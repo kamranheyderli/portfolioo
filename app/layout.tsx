@@ -11,6 +11,9 @@ import Toaster from "@/components/Toaster";
 import KonamiRetro from "@/components/KonamiRetro";
 import TabPresence from "@/components/TabPresence";
 import PwaRegister from "@/components/PwaRegister";
+import SeasonalFx from "@/components/SeasonalFx";
+import ConsoleHello from "@/components/ConsoleHello";
+import ShortcutsHelp from "@/components/ShortcutsHelp";
 import { profile } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
 
@@ -91,6 +94,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <KonamiRetro />
               <TabPresence />
               <PwaRegister />
+              <SeasonalFx />
+              <ConsoleHello />
+              <ShortcutsHelp />
             </IntroProvider>
           </LangProvider>
         </ThemeProvider>
