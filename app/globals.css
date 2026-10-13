@@ -85,8 +85,10 @@ main a, main button, main .card, main form, main input, main textarea, main sele
 
 /* Cursor */
 body.custom-cursor, body.custom-cursor a { cursor: none; }
+/* Kursor bütün qatların (terminal 150, pəncərələr 160, bildirişlər 180, preloader 200) üstündə olmalıdır,
+   yoxsa adi kursor gizli olduğu üçün açıq pəncərədə heç bir kursor görünmür */
 .cursor-dot, .cursor-ring {
-  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 100; border-radius: 50%;
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000; border-radius: 50%;
   mix-blend-mode: difference;
 }
 .cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #fff; }
