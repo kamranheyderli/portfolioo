@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { motion, type Variants } from "framer-motion";
 import { profile } from "@/lib/data";
 import { useT } from "@/components/LangProvider";
@@ -36,8 +37,11 @@ export default function Hero() {
         </motion.p>
 
         <h1 className="hero-title">
-          {words.map((w) => (
-            <span key={w} className="word">
+          {words.map((w, wi) => (
+            <Fragment key={w}>
+              {/* Sözlər arasında real boşluq: Google və ekran oxuyucuları adı "KamranHeyderli" yox, "Kamran Heyderli" oxusun */}
+              {wi > 0 && " "}
+            <span className="word">
               {w.split("").map((ch) => (
                 <span key={idx} className="mask">
                   <motion.span custom={idx++} variants={letter} initial="hidden" animate={done ? "show" : "hidden"}>
@@ -46,6 +50,7 @@ export default function Hero() {
                 </span>
               ))}
             </span>
+            </Fragment>
           ))}
         </h1>
 

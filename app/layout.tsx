@@ -21,14 +21,15 @@ const body = Inter({ subsets: ["latin", "latin-ext", "cyrillic"], variable: "--f
 const pixel = Pixelify_Sans({ subsets: ["latin", "latin-ext", "cyrillic"], variable: "--font-pixel", preload: false });
 
 const title = `${profile.name} — ${profile.role}`;
+// Ad təsvirin əvvəlində: Google axtarış nəticəsində bu mətni göstərir
 const description =
-  "Front-end Engineer with 3+ years of experience building fast, scalable and user-centered web apps with React, Next.js and TypeScript. Baku, Azerbaijan.";
+  "Kamran Heyderli — Front-end Engineer from Baku, Azerbaijan with 3+ years of experience building fast, scalable and user-centered web apps with React, Next.js and TypeScript.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title,
   description,
-  keywords: ["Kamran Heyderli", "Front-end Engineer", "Front-end Developer", "React", "Next.js", "TypeScript", "Baku", "Azerbaijan"],
+  keywords: ["Kamran Heyderli", "Kamran Heydarli", "Kamran Heydərli", "Front-end Engineer", "Front-end Developer", "React", "Next.js", "TypeScript", "Baku", "Azerbaijan"],
   authors: [{ name: profile.name, url: siteUrl }],
   alternates: { canonical: "/" },
   openGraph: { type: "website", url: "/", title, description, siteName: profile.name, locale: "az_AZ", alternateLocale: ["en_US", "ru_RU"] },
@@ -40,7 +41,16 @@ const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: profile.name,
+  // Adın digər yazılışları — insanlar fərqli variantlarla axtara bilər
+  alternateName: ["Kamran Heydarli", "Kamran Heydərli"],
+  description,
   jobTitle: profile.role,
+  worksFor: { "@type": "Organization", name: "IkTex" },
+  alumniOf: [
+    { "@type": "CollegeOrUniversity", name: "Sumqayıt Dövlət Universiteti" },
+    { "@type": "EducationalOrganization", name: "Ingress Academy" },
+    { "@type": "EducationalOrganization", name: "Garage Academy" },
+  ],
   email: `mailto:${profile.email}`,
   url: siteUrl,
   image: `${siteUrl}${profile.photo}`,
@@ -49,12 +59,23 @@ const personJsonLd = {
   knowsAbout: ["React", "Next.js", "TypeScript", "Redux", "Micro-Frontend"],
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: profile.name,
+  alternateName: ["Kamran Heyderli Portfolio", "kamranheyderli.is-a.dev"],
+  url: siteUrl,
+  inLanguage: ["az", "en", "ru"],
+  author: { "@type": "Person", name: profile.name, url: siteUrl },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az" data-theme="dark" suppressHydrationWarning className={`${display.variable} ${displayCyr.variable} ${body.variable} ${pixel.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript + ";" + introInitScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       </head>
       <body>
         <ThemeProvider>
