@@ -5,7 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { profile } from "@/lib/data";
 import { useT } from "./LangProvider";
 import Magnetic from "./Magnetic";
-import ThankYou from "./ThankYou";
+import dynamic from "next/dynamic";
+
+// Təşəkkür kartı yalnız forma uğurla göndəriləndə yüklənir
+const ThankYou = dynamic(() => import("./ThankYou"), { ssr: false });
 import { play } from "@/lib/sound";
 import { FORMSPREE_ENDPOINT } from "@/lib/site";
 
@@ -55,6 +58,8 @@ export default function ContactForm() {
       key="form"
       className="contact-form glass"
       onSubmit={onSubmit}
+      // Formaya yazmağa başlayanda təşəkkür kartı əvvəlcədən yüklənir — göndərəndə gecikmə olmasın
+      onFocusCapture={() => void import("./ThankYou")}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, filter: "blur(6px)" }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { openTerminal } from "./Terminal";
+import { openTerminal } from "@/lib/events";
 
 export default function TerminalButton() {
   const [mac, setMac] = useState(true);
