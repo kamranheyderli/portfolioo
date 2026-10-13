@@ -12,15 +12,32 @@ const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({
   setLang: () => {},
 });
 
+// rus → ru, azərbaycan/türk → az, qalan hamı → en (xarici ziyarətçi üçün ingiliscə daha anlaşıqlıdır)
+function detectLang(): Lang {
+  const prefs = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const p of prefs) {
+    const code = p.toLowerCase().slice(0, 2);
+    if (code === "ru") return "ru";
+    if (code === "az" || code === "tr") return "az";
+    if (code === "en") return "en";
+  }
+  return "en";
+}
+
 export function LangProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("az");
 
-  // Əvvəl seçilmiş dili bərpa et
+  // Əvvəl seçilmiş dili bərpa et; seçim yoxdursa, brauzerin dilinə görə təxmin et
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (languages.some((l) => l.code === saved)) setLangState(saved as Lang);
+      if (languages.some((l) => l.code === saved)) {
+        setLangState(saved as Lang);
+        return;
+      }
     } catch {}
+    const detected = detectLang();
+    if (detected !== "az") setLangState(detected);
   }, []);
 
   useEffect(() => {

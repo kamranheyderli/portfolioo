@@ -10,7 +10,16 @@ export type More = {
   season: { novruz: string; winter: string };
   copy: { label: string; done: string };
   keys: { title: string; close: string; items: { keys: string; text: string }[] };
+  ach: {
+    title: string; progress: string; unlocked: string; allDone: string; locked: string;
+    names: Record<AchievementId, string>; hints: Record<AchievementId, string>;
+  };
+  accent: { title: string; names: Record<AccentId, string> };
+  music: { title: string; on: string; off: string };
 };
+
+export type AchievementId = "terminal" | "snake" | "typing" | "matrix" | "retro" | "burst" | "color" | "gitlog" | "guestbook";
+export type AccentId = "violet" | "emerald" | "sunset" | "ocean";
 
 export const more: Record<Lang, More> = {
   az: {
@@ -40,7 +49,7 @@ export const more: Record<Lang, More> = {
     season: { novruz: "🔥 Novruz bayramınız mübarək!", winter: "❄️ Yeni iliniz mübarək!" },
     copy: { label: "E-poçtu kopyala", done: "E-poçt kopyalandı 📋" },
     keys: {
-      title: "Qısayollar və gizli şeylər",
+      title: "Qısayollar və ayarlar",
       close: "Bağla",
       items: [
         { keys: "⌘ K / Ctrl K", text: "Terminalı aç — help, hire-me, snake, typing, matrix..." },
@@ -50,6 +59,17 @@ export const more: Record<Lang, More> = {
         { keys: "3D loqoya klik", text: "Hissəciklər partlayır" },
       ],
     },
+    ach: {
+      title: "Nailiyyətlər",
+      progress: "{n}/{total} sirr tapıldı",
+      unlocked: "🏆 Yeni sirr tapıldı: {name}",
+      allDone: "🎉 Bütün sirləri tapdın! Sən əsl kəşfiyyatçısan.",
+      locked: "Hələ tapılmayıb",
+      names: { terminal: "Terminal ustası", snake: "İlan ovçusu", typing: "Sürətli barmaqlar", matrix: "Qırmızı həb", retro: "Retro oyunçu", burst: "Partlayış!", color: "Rəssam", gitlog: "Tarixçi", guestbook: "Qonaq" },
+      hints: { terminal: "⌘K", snake: "snake", typing: "typing", matrix: "matrix", retro: "↑↑↓↓←→←→BA", burst: "3D loqo", color: "color", gitlog: "git log", guestbook: "sign" },
+    },
+    accent: { title: "Rəng", names: { violet: "Bənövşəyi", emerald: "Zümrüd", sunset: "Gün batımı", ocean: "Okean" } },
+    music: { title: "Fon musiqisi", on: "Açıq", off: "Bağlı" },
   },
   en: {
     status: {
@@ -78,7 +98,7 @@ export const more: Record<Lang, More> = {
     season: { novruz: "🔥 Happy Novruz!", winter: "❄️ Happy New Year!" },
     copy: { label: "Copy email", done: "Email copied 📋" },
     keys: {
-      title: "Shortcuts & secrets",
+      title: "Shortcuts & settings",
       close: "Close",
       items: [
         { keys: "⌘ K / Ctrl K", text: "Open the terminal — help, hire-me, snake, typing, matrix..." },
@@ -88,6 +108,17 @@ export const more: Record<Lang, More> = {
         { keys: "Click the 3D logo", text: "Particles burst" },
       ],
     },
+    ach: {
+      title: "Achievements",
+      progress: "{n}/{total} secrets found",
+      unlocked: "🏆 Secret found: {name}",
+      allDone: "🎉 You found every secret! True explorer.",
+      locked: "Not found yet",
+      names: { terminal: "Terminal user", snake: "Snake charmer", typing: "Fast fingers", matrix: "Red pill", retro: "Retro gamer", burst: "Kaboom!", color: "Painter", gitlog: "Historian", guestbook: "Guest" },
+      hints: { terminal: "⌘K", snake: "snake", typing: "typing", matrix: "matrix", retro: "↑↑↓↓←→←→BA", burst: "3D logo", color: "color", gitlog: "git log", guestbook: "sign" },
+    },
+    accent: { title: "Color", names: { violet: "Violet", emerald: "Emerald", sunset: "Sunset", ocean: "Ocean" } },
+    music: { title: "Ambient music", on: "On", off: "Off" },
   },
   ru: {
     status: {
@@ -116,7 +147,7 @@ export const more: Record<Lang, More> = {
     season: { novruz: "🔥 С праздником Новруз!", winter: "❄️ С Новым годом!" },
     copy: { label: "Скопировать e-mail", done: "E-mail скопирован 📋" },
     keys: {
-      title: "Горячие клавиши и секреты",
+      title: "Горячие клавиши и настройки",
       close: "Закрыть",
       items: [
         { keys: "⌘ K / Ctrl K", text: "Открыть терминал — help, hire-me, snake, typing, matrix..." },
@@ -126,5 +157,16 @@ export const more: Record<Lang, More> = {
         { keys: "Клик по 3D-логотипу", text: "Частицы разлетаются" },
       ],
     },
+    ach: {
+      title: "Достижения",
+      progress: "Найдено секретов: {n}/{total}",
+      unlocked: "🏆 Найден секрет: {name}",
+      allDone: "🎉 Вы нашли все секреты! Настоящий исследователь.",
+      locked: "Ещё не найдено",
+      names: { terminal: "Терминальщик", snake: "Заклинатель змей", typing: "Быстрые пальцы", matrix: "Красная таблетка", retro: "Ретро-геймер", burst: "Бабах!", color: "Художник", gitlog: "Историк", guestbook: "Гость" },
+      hints: { terminal: "⌘K", snake: "snake", typing: "typing", matrix: "matrix", retro: "↑↑↓↓←→←→BA", burst: "3D-логотип", color: "color", gitlog: "git log", guestbook: "sign" },
+    },
+    accent: { title: "Цвет", names: { violet: "Фиолетовый", emerald: "Изумруд", sunset: "Закат", ocean: "Океан" } },
+    music: { title: "Фоновая музыка", on: "Вкл", off: "Выкл" },
   },
 };

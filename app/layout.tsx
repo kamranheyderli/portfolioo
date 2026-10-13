@@ -4,7 +4,7 @@ import "./globals.css";
 import { LangProvider } from "@/components/LangProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { IntroProvider } from "@/components/Preloader";
-import { introInitScript, themeInitScript } from "@/lib/initScripts";
+import { accentInitScript, introInitScript, themeInitScript } from "@/lib/initScripts";
 import SmoothScroll from "@/components/SmoothScroll";
 import Toaster from "@/components/Toaster";
 import KonamiRetro from "@/components/KonamiRetro";
@@ -13,6 +13,7 @@ import PwaRegister from "@/components/PwaRegister";
 import SeasonalFx from "@/components/SeasonalFx";
 import ConsoleHello from "@/components/ConsoleHello";
 import ShortcutsHelp from "@/components/ShortcutsHelp";
+import AchievementToaster from "@/components/AchievementToaster";
 import { profile } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
 
@@ -79,7 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="az" data-theme="dark" suppressHydrationWarning className={`${display.variable} ${displayCyr.variable} ${body.variable} ${pixel.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript + ";" + introInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript + ";" + introInitScript + ";" + accentInitScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       </head>
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SeasonalFx />
               <ConsoleHello />
               <ShortcutsHelp />
+              <AchievementToaster />
             </IntroProvider>
           </LangProvider>
         </ThemeProvider>

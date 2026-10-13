@@ -8,3 +8,6 @@ export const themeInitScript = `(function(){try{var t=localStorage.getItem("${TH
 
 // Preloader yalnız ana səhifədə və sessiyada bir dəfə göstərilir (ilk rəngləmədən əvvəl işləyir)
 export const introInitScript = `(function(){try{if(location.pathname!=="/"||sessionStorage.getItem("${INTRO_KEY}")||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("intro-skip")}catch(e){}})()`;
+
+// Seçilmiş rəng palitrası ilk rəngləmədən əvvəl tətbiq olunur
+export const accentInitScript = `(function(){try{var a=localStorage.getItem("accent");if(a&&a!=="violet"&&/^(emerald|sunset|ocean)$/.test(a))document.documentElement.dataset.accent=a}catch(e){}})()`;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { play } from "@/lib/sound";
+import { unlock } from "@/lib/achievements";
 
 // Terminalda yazı sürəti testi — WPM və dəqiqlik ölçülür
 const TEXTS = [
@@ -71,6 +72,7 @@ export default function TypingTest({ onExit }: { onExit: (wpm: number, acc: numb
       } catch {}
     }
     play("success");
+    unlock("typing");
   };
 
   const onChange = (value: string) => {

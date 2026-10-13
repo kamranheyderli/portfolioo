@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { play, setRetroSound } from "@/lib/sound";
 import { toast } from "@/lib/toast";
+import { unlock } from "@/lib/achievements";
 import { useM } from "./LangProvider";
 
 // ↑ ↑ ↓ ↓ ← → ← → B A — saytı retro (8-bit) rejimə keçirir
@@ -29,6 +30,7 @@ export default function KonamiRetro() {
       setRetroSound(on);
       play(on ? "powerup" : "powerdown");
       toast(on ? tRef.current.on : tRef.current.off);
+      if (on) unlock("retro");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

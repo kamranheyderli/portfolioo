@@ -12,6 +12,13 @@ import { useLang, useT } from "./LangProvider";
 import { useTheme } from "./ThemeProvider";
 import Snake from "./Snake";
 import { OPEN_SHORTCUTS_EVENT } from "./ShortcutsHelp";
+import { unlock } from "@/lib/achievements";
+import { ACCENTS, setAccent } from "@/lib/accent";
+import { isMusicOn, startMusic, stopMusic } from "@/lib/music";
+import type { AccentId } from "@/lib/i18n-more";
+
+const GH_USER = "kamranheyderli";
+const GH_REPO = "portfolioo";
 import Matrix from "./Matrix";
 import TypingTest from "./TypingTest";
 
@@ -28,6 +35,8 @@ const HIRE_STEPS = [
   { key: "timeline", q: "Timeline? (Enter to skip)", optional: true },
 ] as const;
 type Wizard = { step: number; answers: Record<string, string>; confirming: boolean; sending: boolean };
+// Qonaq kitabına yazmaq: əvvəl ad, sonra mesaj
+type Signer = { step: 0 | 1; name: string; sending: boolean };
 
 const KH_ART = [
   "██╗  ██╗██╗  ██╗",
@@ -53,6 +62,12 @@ const COMMANDS: Record<string, string> = {
   ls: "list sections",
   date: "current date",
   snake: "play Snake 🐍",
+  "git log": "how this site was built — live commit history",
+  repos: "my latest GitHub repositories",
+  guestbook: "read the guestbook",
+  sign: "sign the guestbook ✍️",
+  color: "color [violet|emerald|sunset|ocean] — change the site's accent",
+  music: "music [on|off] — ambient background music",
   typing: "typing speed test ⌨️",
   matrix: "follow the white rabbit 🐇",
   "hire-me": "send me a project request, right here",
@@ -84,6 +99,7 @@ export default function Terminal() {
   const [hIndex, setHIndex] = useState(-1);
   const [app, setApp] = useState<App | null>(null);
   const [wizard, setWizard] = useState<Wizard | null>(null);
+  const [signer, setSigner] = useState<Signer | null>(null);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -111,9 +127,11 @@ export default function Terminal() {
     // İlk yüklənmədə deyil, yalnız açılıb-bağlananda səslənir
     if (open !== wasOpen.current) play(open ? "open" : "close");
     wasOpen.current = open;
+    if (open) unlock("terminal");
     if (!open) {
       setApp(null);
       setWizard(null);
+      setSigner(null);
     }
     if (open) {
       lenis?.stop();
@@ -145,6 +163,108 @@ export default function Terminal() {
       `Status    open to work ✓`,
     ];
     return info.map((text, i) => ({ kind: i === 0 ? "accent" : "out", text, art: (KH_ART[i] ?? "").padEnd(18) }));
+  };
+
+  const append = (more: Line[]) => setLines((l) => [...l, ...more]);
+  const ago = (ts: number) => new Date(ts).toISOString().slice(0, 10);
+
+  // GitHub API-dən canlı məlumat (açar lazım deyil; limit dolsa, nəzakətli xəta)
+  const gh = async (path: string) => {
+    const res = await fetch(`https://api.github.com${path}`, { headers: { Accept: "application/vnd.github+json" } });
+    if (!res.ok) throw new Error(res.status === 403 ? "GitHub rate limit reached — try again in a few minutes." : `GitHub error ${res.status}`);
+    return res.json();
+  };
+
+  const gitLog = async () => {
+    try {
+      const commits = (await gh(`/repos/${GH_USER}/${GH_REPO}/commits?per_page=10`)) as { sha: string; commit: { message: string; author: { date: string } } }[];
+      append([
+        ...commits.map((c) => ({ kind: "out" as const, text: `${c.sha.slice(0, 7)}  ${c.commit.author.date.slice(0, 10)}  ${c.commit.message.split("\n")[0]}` })),
+        { kind: "accent", text: `↳ github.com/${GH_USER}/${GH_REPO}` },
+      ]);
+      play("enter");
+      unlock("gitlog");
+    } catch (e) {
+      play("error");
+      append([{ kind: "err", text: (e as Error).message }]);
+    }
+  };
+
+  const repos = async () => {
+    try {
+      const list = (await gh(`/users/${GH_USER}/repos?sort=updated&per_page=8`)) as { name: string; stargazers_count: number; language: string | null; description: string | null; fork: boolean }[];
+      const own = list.filter((x) => !x.fork);
+      append(
+        own.length
+          ? own.map((x) => ({ kind: "out" as const, text: `${x.name.padEnd(24)} ★${String(x.stargazers_count).padEnd(3)} ${(x.language ?? "").padEnd(11)} ${x.description ?? ""}` }))
+          : [{ kind: "out", text: "No public repositories yet." }],
+      );
+      play("enter");
+    } catch (e) {
+      play("error");
+      append([{ kind: "err", text: (e as Error).message }]);
+    }
+  };
+
+  const guestbook = async () => {
+    try {
+      const res = await fetch("/api/guestbook");
+      if (!res.ok) throw new Error();
+      const { entries } = (await res.json()) as { entries: { name: string; message: string; at: number }[] };
+      append(
+        entries.length
+          ? entries.map((e) => ({ kind: "out" as const, text: `${ago(e.at)}  ${e.name}: ${e.message}` }))
+          : [{ kind: "out", text: "No signatures yet — be the first: type 'sign' ✍️" }],
+      );
+      play("enter");
+    } catch {
+      play("error");
+      append([{ kind: "err", text: "Guestbook is unavailable right now." }]);
+    }
+  };
+
+  const sendSignature = async (name: string, message: string) => {
+    try {
+      const res = await fetch("/api/guestbook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, message }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const why = data.error === "rate" ? "You signed recently — try again in a few minutes." : data.error === "links" ? "Links aren't allowed in the guestbook." : data.error === "invalid" ? "Name and message need at least 2 characters." : "Guestbook is unavailable right now.";
+        throw new Error(why);
+      }
+      play("success");
+      append([{ kind: "accent", text: `✓ Thanks for signing, ${name}! Type 'guestbook' to see it.` }]);
+      unlock("guestbook");
+    } catch (e) {
+      play("error");
+      append([{ kind: "err", text: (e as Error).message }]);
+    }
+    setSigner(null);
+  };
+
+  const answerSign = (raw: string) => {
+    const v = raw.trim();
+    const echo: Line = { kind: "in", text: raw, prompt: "?" };
+    if (v.toLowerCase() === "cancel") {
+      play("close");
+      setSigner(null);
+      append([echo, { kind: "out", text: "Cancelled." }]);
+      return;
+    }
+    if (v.length < 2) {
+      play("error");
+      append([echo, { kind: "err", text: "At least 2 characters, please 🙂" }]);
+      return;
+    }
+    if (signer!.step === 0) {
+      play("enter");
+      setSigner({ step: 1, name: v.slice(0, 24), sending: false });
+      append([echo, { kind: "accent", text: "Your message (max 140 characters):" }]);
+    } else {
+      play("enter");
+      setSigner({ ...signer!, sending: true });
+      append([echo, { kind: "out", text: "Signing…" }]);
+      void sendSignature(signer!.name, v.slice(0, 140));
+    }
   };
 
   const sendHire = async (answers: Record<string, string>) => {
@@ -311,6 +431,35 @@ export default function Terminal() {
         setOpen(false);
         router.push("/cv");
         return [];
+      case "git":
+        if (arg !== "log") return [{ kind: "err", text: "usage: git log" }];
+        void gitLog();
+        return [{ kind: "out", text: "Fetching commits from GitHub…" }];
+      case "repos":
+        void repos();
+        return [{ kind: "out", text: "Fetching repositories from GitHub…" }];
+      case "guestbook":
+        void guestbook();
+        return [{ kind: "out", text: "Opening the guestbook…" }];
+      case "sign":
+        setSigner({ step: 0, name: "", sending: false });
+        return [
+          { kind: "accent", text: "Sign the guestbook ✍️  (type 'cancel' anytime)" },
+          { kind: "accent", text: "Your name:" },
+        ];
+      case "color":
+      case "colour":
+        if (!arg) return [{ kind: "out", text: `usage: color [${ACCENTS.join("|")}]` }];
+        if (!ACCENTS.includes(arg as AccentId)) return [{ kind: "err", text: `unknown color: ${arg}. Try: ${ACCENTS.join(", ")}` }];
+        setAccent(arg as AccentId);
+        return [{ kind: "accent", text: `Accent → ${arg} 🎨` }];
+      case "music":
+        if (arg === "off" || (!arg && isMusicOn())) {
+          stopMusic();
+          return [{ kind: "out", text: "Music off." }];
+        }
+        startMusic();
+        return [{ kind: "accent", text: "♪ Ambient music on — 'music off' to stop." }];
       case "hire-me":
       case "hire":
         setWizard({ step: 0, answers: {}, confirming: false, sending: false });
@@ -334,6 +483,11 @@ export default function Terminal() {
   };
 
   const submit = (cmd: string) => {
+    if (signer) {
+      if (!signer.sending) answerSign(cmd);
+      setValue("");
+      return;
+    }
     if (wizard) {
       if (!wizard.sending) answerWizard(cmd);
       setValue("");
@@ -357,7 +511,7 @@ export default function Terminal() {
     else if (e.key === "Backspace" && value) play("key");
 
     if (e.key === "Enter") submit(value);
-    else if (wizard) return;
+    else if (wizard || signer) return;
     else if (e.key === "ArrowUp") {
       e.preventDefault();
       const i = Math.min(hIndex + 1, history.length - 1);
@@ -411,7 +565,10 @@ export default function Terminal() {
               <kbd>esc</kbd>
             </div>
             {app === "snake" ? (
-              <Snake onExit={(score, best) => closeApp({ kind: "accent", text: `🐍 Game over — score ${score} · best ${best}` })} />
+              <Snake onExit={(score, best) => {
+                if (score > 0) unlock("snake");
+                closeApp({ kind: "accent", text: `🐍 Game over — score ${score} · best ${best}` });
+              }} />
             ) : app === "typing" ? (
               <TypingTest
                 onExit={(wpm, acc, best) =>
@@ -419,7 +576,10 @@ export default function Terminal() {
                 }
               />
             ) : app === "matrix" ? (
-              <Matrix onExit={() => closeApp({ kind: "accent", text: "🐇 You took the red pill." })} />
+              <Matrix onExit={() => {
+                unlock("matrix");
+                closeApp({ kind: "accent", text: "🐇 You took the red pill." });
+              }} />
             ) : (
             <div className="term-body" ref={bodyRef} data-lenis-prevent>
               {lines.map((l, i) => (
@@ -430,7 +590,7 @@ export default function Terminal() {
                 </div>
               ))}
               <div className="term-line in">
-                <span className="prompt">{wizard ? "?" : "➜ ~"}</span>
+                <span className="prompt">{wizard || signer ? "?" : "➜ ~"}</span>
                 <input
                   ref={inputRef}
                   value={value}
@@ -439,8 +599,9 @@ export default function Terminal() {
                   spellCheck={false}
                   autoCapitalize="off"
                   autoComplete="off"
-                  aria-label={wizard ? "Answer" : "Command"}
-                  disabled={wizard?.sending}
+                  aria-label={wizard || signer ? "Answer" : "Command"}
+                  // disabled yox, readOnly: disabled sahə fokusu itirir və göndərişdən sonra əmrlər heç yerə yazılmır
+                  readOnly={wizard?.sending || signer?.sending}
                 />
               </div>
             </div>

@@ -1,15 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useM } from "./LangProvider";
+import { ACHIEVEMENTS, getUnlocked, subscribeAchievements } from "@/lib/achievements";
+import { ACCENTS, ACCENT_EVENT, SWATCH, getAccent, setAccent } from "@/lib/accent";
+import { MUSIC_EVENT, isMusicOn, toggleMusic } from "@/lib/music";
+
+const subscribeTo = (event: string) => (cb: () => void) => {
+  addEventListener(event, cb);
+  return () => removeEventListener(event, cb);
+};
+const subAccent = subscribeTo(ACCENT_EVENT);
+const subMusic = subscribeTo(MUSIC_EVENT);
+const EMPTY: never[] = [];
 
 export const OPEN_SHORTCUTS_EVENT = "open-shortcuts";
 
 // "?" düyməsi ilə saytdakı bütün qısayolları və gizli şeyləri göstərir
 export default function ShortcutsHelp() {
-  const k = useM().keys;
+  const m = useM();
+  const k = m.keys;
+  const unlocked = useSyncExternalStore(subscribeAchievements, getUnlocked, () => EMPTY);
+  const accent = useSyncExternalStore(subAccent, getAccent, () => "violet" as const);
+  const music = useSyncExternalStore(subMusic, isMusicOn, () => false);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -69,6 +84,56 @@ export default function ShortcutsHelp() {
                 </div>
               ))}
             </dl>
+
+            <div className="keys-settings">
+              <div className="keys-row">
+                <span className="keys-label">{m.accent.title}</span>
+                <div className="swatches" role="radiogroup" aria-label={m.accent.title}>
+                  {ACCENTS.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      role="radio"
+                      aria-checked={accent === a}
+                      aria-label={m.accent.names[a]}
+                      title={m.accent.names[a]}
+                      className={`swatch${accent === a ? " active" : ""}`}
+                      style={{ background: `linear-gradient(135deg, ${SWATCH[a][0]}, ${SWATCH[a][1]})` }}
+                      onClick={() => setAccent(a)}
+                      data-hover
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="keys-row">
+                <span className="keys-label">{m.music.title}</span>
+                <button type="button" className={`music-toggle${music ? " on" : ""}`} onClick={toggleMusic} aria-pressed={music} data-hover>
+                  <span className="eq" aria-hidden><i /><i /><i /></span>
+                  {music ? m.music.on : m.music.off}
+                </button>
+              </div>
+            </div>
+
+            <div className="ach">
+              <div className="ach-head">
+                <span className="keys-label">{m.ach.title}</span>
+                <span className="ach-progress">{m.ach.progress.replace("{n}", String(unlocked.length)).replace("{total}", String(ACHIEVEMENTS.length))}</span>
+              </div>
+              <div className="ach-bar"><span style={{ width: `${(unlocked.length / ACHIEVEMENTS.length) * 100}%` }} /></div>
+              <ul className="ach-grid">
+                {ACHIEVEMENTS.map((id) => {
+                  const got = unlocked.includes(id);
+                  return (
+                    <li key={id} className={got ? "got" : ""} title={got ? m.ach.names[id] : m.ach.locked}>
+                      <span className="ach-icon" aria-hidden>{got ? "🏆" : "🔒"}</span>
+                      <span className="ach-name">{got ? m.ach.names[id] : "???"}</span>
+                      <code>{m.ach.hints[id]}</code>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
             <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)} autoFocus data-hover>{k.close}</button>
           </motion.div>
         </motion.div>

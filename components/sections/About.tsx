@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import ScrollWords from "@/components/ScrollWords";
 import Reveal from "@/components/Reveal";
 import Scramble from "@/components/Scramble";
 import { profile } from "@/lib/data";
@@ -18,7 +19,7 @@ export default function About() {
               {t.about.title.map((part, i) => (part.em ? <em key={i}>{part.t}</em> : part.t))}
             </h2>
           </Reveal>
-          <Reveal delay={0.2}><p className="lead">{t.about.text}</p></Reveal>
+          <Reveal delay={0.2}><ScrollWords className="lead" text={t.about.text} /></Reveal>
           <Reveal delay={0.3}>
             <div className="stats">
               {t.about.stats.map((s) => (

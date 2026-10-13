@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { play } from "@/lib/sound";
+import { unlock } from "@/lib/achievements";
 import * as THREE from "three";
 import { getSectionProgress } from "./scroll";
 import { isLight } from "./theme";
@@ -187,6 +188,7 @@ export default function LogoMorph() {
       mat.uniforms.uBurstAt.value.copy(clickHit);
       mat.uniforms.uBurst.value = 1;
       play("burst");
+      unlock("burst");
     };
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);

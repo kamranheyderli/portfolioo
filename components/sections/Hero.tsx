@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import { profile } from "@/lib/data";
 import { useT } from "@/components/LangProvider";
@@ -36,6 +36,52 @@ export default function Hero() {
   const words = profile.name.split(" ");
   let idx = 0;
 
+  // Kursor yaxınlaşanda hərflər yaylı şəkildə kənara itələnir (yalnız siçanla, animasiyalar azaldılmayıbsa)
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!matchMedia("(pointer: fine) and (prefers-reduced-motion: no-preference)").matches) return;
+    const letters = Array.from(titleRef.current?.querySelectorAll<HTMLElement>(".mask") ?? []);
+    const state = letters.map(() => ({ x: 0, y: 0, vx: 0, vy: 0 }));
+    let mx = -9999, my = -9999, raf = 0;
+    const RADIUS = 140, PUSH = 26;
+
+    const tick = () => {
+      let moving = false;
+      // Əvvəl bütün ölçüləri oxuyuruq, sonra yazırıq — hər hərfdə ayrıca layout hesablanmasın
+      const rects = letters.map((el) => el.getBoundingClientRect());
+      letters.forEach((el, i) => {
+        const r = rects[i];
+        const cx = r.left + r.width / 2 - state[i].x, cy = r.top + r.height / 2 - state[i].y;
+        const dx = cx - mx, dy = cy - my, d = Math.hypot(dx, dy);
+        const f = d < RADIUS ? (1 - d / RADIUS) ** 2 * PUSH : 0;
+        const tx = d ? (dx / d) * f : 0, ty = d ? (dy / d) * f : 0;
+        const s = state[i];
+        // Yay (spring): hədəfə doğru çəkilir, sürtünmə ilə sakitləşir
+        s.vx = (s.vx + (tx - s.x) * 0.18) * 0.72;
+        s.vy = (s.vy + (ty - s.y) * 0.18) * 0.72;
+        s.x += s.vx;
+        s.y += s.vy;
+        if (Math.abs(s.vx) + Math.abs(s.vy) + Math.abs(tx - s.x) + Math.abs(ty - s.y) > 0.05) moving = true;
+        el.style.transform = `translate(${s.x.toFixed(2)}px, ${s.y.toFixed(2)}px)`;
+      });
+      raf = moving ? requestAnimationFrame(tick) : 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    // Kursor pəncərədən çıxanda hərflər yerinə qayıdır
+    const leave = () => { mx = my = -9999; if (!raf) raf = requestAnimationFrame(tick); };
+    addEventListener("pointermove", onMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", leave);
+    return () => {
+      cancelAnimationFrame(raf);
+      removeEventListener("pointermove", onMove);
+      document.documentElement.removeEventListener("pointerleave", leave);
+    };
+  }, []);
+
   return (
     <section id="top" className="hero">
       <div className="hero-content">
@@ -43,7 +89,7 @@ export default function Hero() {
           <span className="pulse" /> {t.hero.available}
         </motion.p>
 
-        <h1 className="hero-title">
+        <h1 className="hero-title" ref={titleRef}>
           {words.map((w, wi) => (
             <Fragment key={w}>
               {/* Sözlər arasında real boşluq: Google və ekran oxuyucuları adı "KamranHeyderli" yox, "Kamran Heyderli" oxusun */}
