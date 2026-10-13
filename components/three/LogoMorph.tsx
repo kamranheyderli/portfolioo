@@ -11,6 +11,12 @@ import { LOGO_RES, sampleLogos, type LogoSet } from "./logoSampler";
 // Daha çox, amma daha kiçik hissəcik — konturlar kəskin görünsün. Mobildə yarısı.
 const COUNT = typeof window !== "undefined" && window.innerWidth < 768 ? 5000 : 14000;
 
+// Toxunma ekranında Lenis yoxdur: scroll barmağın hər hərəkətini birbaşa ötürür.
+// Loqonun keçidini orada daha güclü yumşaldırıq ki, morph sıçrayışla yox, hamar getsin.
+// (1 saniyədə qalan fərq: desktop 0.2%, toxunma 6% — yəni ~0.16 s və ~0.36 s zaman sabiti)
+const TOUCH = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+const SMOOTHING = TOUCH ? 0.06 : 0.002;
+
 // Loqolar Web Worker-də hazırlanır; dəstəklənmirsə, brauzer boş olanda əsas thread-də
 function loadLogos(count: number): Promise<LogoSet> {
   if (typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined") {
@@ -159,7 +165,7 @@ export default function LogoMorph() {
     const from = stops[i];
     const to = stops[i + 1];
     const lerp = THREE.MathUtils.lerp;
-    const k = 1 - Math.pow(0.002, delta);
+    const k = 1 - Math.pow(SMOOTHING, delta);
 
     const mobile = state.viewport.width < 7;
     // Mobildə hero-da loqo mərkəzdə, sonrakı bölmələrdə yüngül yana sürüşür
