@@ -7,12 +7,16 @@ import * as THREE from "three";
 import LogoMorph from "./LogoMorph";
 import Particles from "./Particles";
 import { getScrollProgress } from "./scroll";
+import { damp } from "./damp";
+
+// Hər kadrda yeni obyekt yaratmırıq — mobildə zibil yığıcısı (GC) ara-sıra donma yaradır
+const camTarget = new THREE.Vector3();
 
 function CameraRig() {
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const p = getScrollProgress();
-    const target = new THREE.Vector3(state.pointer.x * 0.4, state.pointer.y * 0.3 - p * 0.5, 6);
-    state.camera.position.lerp(target, 0.05);
+    camTarget.set(state.pointer.x * 0.4, state.pointer.y * 0.3 - p * 0.5, 6);
+    state.camera.position.lerp(camTarget, damp(0.05, delta));
     state.camera.lookAt(0, 0, 0);
   });
   return null;
@@ -36,10 +40,11 @@ export default function Scene() {
           gl.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
         }}
       >
-        <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(maxDpr)} flipflops={3} onFallback={() => setDpr(1)} />
+        {/* Çözünürlük yalnız aşağı enir, geri qalxmır: hər dəyişiklik bufferi yenidən yaradır və qısa donma verir */}
+        <PerformanceMonitor onDecline={() => setDpr(1)} />
         <Suspense fallback={null}>
           <LogoMorph />
-          <Particles count={mobile ? 1200 : 2500} />
+          <Particles count={mobile ? 700 : 2500} />
           <CameraRig />
         </Suspense>
       </Canvas>

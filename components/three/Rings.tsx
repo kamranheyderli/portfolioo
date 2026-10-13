@@ -4,13 +4,14 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
+import { damp } from "./damp";
 
 // Loqonun ətrafında fırlanan nazik orbit halqaları
 export default function Rings() {
   const group = useRef<THREE.Group>(null!);
   useFrame((state, delta) => {
     group.current.rotation.z += delta * 0.05;
-    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 1.1 + state.pointer.y * 0.2, 0.05);
+    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 1.1 + state.pointer.y * 0.2, damp(0.05, delta));
   });
 
   return (

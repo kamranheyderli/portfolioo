@@ -9,7 +9,7 @@ import Rings from "./Rings";
 import { LOGO_RES, sampleLogos, type LogoSet } from "./logoSampler";
 
 // Daha çox, amma daha kiçik hissəcik — konturlar kəskin görünsün. Mobildə yarısı.
-const COUNT = typeof window !== "undefined" && window.innerWidth < 768 ? 7000 : 14000;
+const COUNT = typeof window !== "undefined" && window.innerWidth < 768 ? 5000 : 14000;
 
 // Loqolar Web Worker-də hazırlanır; dəstəklənmirsə, brauzer boş olanda əsas thread-də
 function loadLogos(count: number): Promise<LogoSet> {

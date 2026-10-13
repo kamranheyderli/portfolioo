@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { isLight } from "./theme";
+import { damp } from "./damp";
 
 const vertexShader = /* glsl */ `
   uniform float uTime;
@@ -64,10 +65,10 @@ export default function Particles({ count = 2500 }: { count?: number }) {
     u.uTime.value += delta;
     u.uPixelRatio.value = state.gl.getPixelRatio();
     const light = isLight();
-    u.uLight.value = THREE.MathUtils.lerp(u.uLight.value, light ? 1 : 0, 0.1);
+    u.uLight.value = THREE.MathUtils.lerp(u.uLight.value, light ? 1 : 0, damp(0.1, delta));
     material.current.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
     points.current.rotation.y += delta * 0.02;
-    points.current.rotation.x = THREE.MathUtils.lerp(points.current.rotation.x, state.pointer.y * 0.1, 0.05);
+    points.current.rotation.x = THREE.MathUtils.lerp(points.current.rotation.x, state.pointer.y * 0.1, damp(0.05, delta));
   });
 
   return (

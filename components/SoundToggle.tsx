@@ -9,14 +9,16 @@ const CLICKABLE = "a, button, [data-hover], [role='button']";
 export default function SoundToggle() {
   const on = useSyncExternalStore(subscribeSound, isSoundOn, () => true);
 
-  // Saytdakı bütün kliklənən elementlər üçün incə "klik" səsi
+  // Saytdakı bütün kliklənən elementlər üçün incə "klik" səsi.
+  // "click" istifadə olunur, "pointerdown" yox: telefonda barmaq link üstündən scroll edəndə səs çalınmasın
+  // (və ilk toxunuşda audio sisteminin yaradılması scroll-u ilişdirməsin)
   useEffect(() => {
-    const onDown = (e: PointerEvent) => {
+    const onClick = (e: MouseEvent) => {
       const el = (e.target as Element | null)?.closest?.(CLICKABLE);
       if (el && !el.closest("[data-sound='none']")) play("click");
     };
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
   }, []);
 
   const toggle = () => {
