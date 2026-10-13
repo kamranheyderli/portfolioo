@@ -57,7 +57,9 @@ export default function Scramble({ text, className }: { text: string; className?
   }, [text]);
 
   return (
-    <span ref={ref} className={className} aria-label={text}>
+    // <span>-da aria-label qadağandır: ekran oxuyucusu üçün gizli real mətn, qarışan simvollar isə gizlədilir
+    <span ref={ref} className={className}>
+      <span className="sr-only">{text}</span>
       <span aria-hidden>{out}</span>
     </span>
   );

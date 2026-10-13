@@ -594,3 +594,6 @@ body.custom-cursor .copy-email, body.custom-cursor .keys-modal button { cursor: 
 }
 .keys-modal .btn { align-self: flex-end; padding: 10px 20px; font-size: .9rem; }
 @media (max-width: 520px) { .keys-modal dl > div { grid-template-columns: 1fr; gap: 6px; } }
+
+/* Ekranda görünməyən, amma ekran oxuyucularının oxuduğu mətn */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

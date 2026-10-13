@@ -24,7 +24,14 @@ export default function Hero() {
   const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: done ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-    transition: { delay: delay * 0.7, duration: 0.8, ease },
+    transition: { delay: delay * 0.45, duration: 0.7, ease },
+  });
+  // Tagline səhifənin ən böyük mətnidir (LCP): opacity 0-dan başlasa Google onu yalnız animasiyadan sonra "görür".
+  // Ona görə yalnız hərəkətlə görünür — preloader-in arxasında dərhal çəkilir
+  const slideUp = (delay: number) => ({
+    initial: { y: 16 },
+    animate: done ? { y: 0 } : { y: 16 },
+    transition: { delay: delay * 0.45, duration: 0.7, ease },
   });
   const words = profile.name.split(" ");
   let idx = 0;
@@ -57,7 +64,7 @@ export default function Hero() {
         <motion.p className="role gradient-text" {...fadeUp(1.0)}>
           {profile.role}
         </motion.p>
-        <motion.p className="hero-tagline" {...fadeUp(1.15)}>
+        <motion.p className="hero-tagline" {...slideUp(1.15)}>
           {t.hero.tagline}
         </motion.p>
 

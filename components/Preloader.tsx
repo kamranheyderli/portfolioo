@@ -26,13 +26,13 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
     document.documentElement.style.overflow = "hidden";
     const controls = animate(0, 100, {
-      duration: 1.1,
+      duration: 0.8,
       ease: [0.65, 0, 0.35, 1],
       onUpdate: (v) => {
         if (countRef.current) countRef.current.firstChild!.textContent = String(Math.round(v)).padStart(3, "0");
         if (barRef.current) barRef.current.style.transform = `scaleX(${v / 100})`;
       },
-      onComplete: () => setTimeout(finish, 150),
+      onComplete: () => setTimeout(finish, 100),
     });
     return () => controls.stop();
   }, []);
@@ -46,7 +46,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
           <motion.div
             className="preloader"
             exit={{ clipPath: "inset(0 0 100% 0)" }}
-            transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
           >
             <div className="preloader-name">
               {profile.name}

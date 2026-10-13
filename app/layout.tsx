@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, Manrope, Pixelify_Sans } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { LangProvider } from "@/components/LangProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -100,7 +99,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </IntroProvider>
           </LangProvider>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   );
