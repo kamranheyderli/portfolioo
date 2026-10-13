@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import { play } from "@/lib/sound";
 import * as THREE from "three";
 import { getSectionProgress } from "./scroll";
 import { isLight } from "./theme";
@@ -55,6 +56,8 @@ const vertexShader = /* glsl */ `
   uniform float uPixelRatio;
   uniform vec3 uMouse;
   uniform float uReveal;
+  uniform float uBurst;
+  uniform vec3 uBurstAt;
   attribute vec3 aPos1; attribute vec3 aPos2; attribute vec3 aPos3; attribute vec3 aPos4; attribute vec3 aPos5;
   attribute vec3 aCol0; attribute vec3 aCol1; attribute vec3 aCol2; attribute vec3 aCol3; attribute vec3 aCol4; attribute vec3 aCol5;
   attribute vec3 aRandom;
@@ -73,6 +76,10 @@ const vertexShader = /* glsl */ `
     // İlk görünüşdə hissəciklər dağınıq vəziyyətdən yığılır
     float scatter = morph + (1.0 - uReveal) * 1.6;
     p += aRandom * scatter * 2.2;
+    // Klik: hissəciklər klik nöqtəsindən kənara partlayır və yenidən yığılır
+    vec3 away = p - uBurstAt;
+    float near = 1.0 / (1.0 + dot(away.xy, away.xy) * 0.6);
+    p += (normalize(away + 1e-4) * (0.8 + near * 1.6) + aRandom * 2.5) * uBurst;
     p += vec3(
       sin(uTime * 1.3 + aRandom.x * 20.0),
       cos(uTime * 1.1 + aRandom.y * 20.0),
@@ -117,6 +124,8 @@ const stops = [
 
 const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 const hit = new THREE.Vector3();
+const clickHit = new THREE.Vector3();
+const ndc = new THREE.Vector2();
 const target = new THREE.Vector3();
 
 export default function LogoMorph() {
@@ -154,9 +163,34 @@ export default function LogoMorph() {
       uMouse: { value: new THREE.Vector3(99, 99, 0) },
       uLight: { value: 0 },
       uReveal: { value: 0 },
+      uBurst: { value: 0 },
+      uBurstAt: { value: new THREE.Vector3() },
     }),
     []
   );
+
+  // Loqoya klik — "click" istifadə olunur ki, telefonda scroll başlayanda təsadüfən partlamasın
+  const { gl, camera, raycaster } = useThree();
+  useEffect(() => {
+    const el = gl.domElement;
+    const onClick = (e: MouseEvent) => {
+      const mat = material.current;
+      if (!mat || !group.current) return;
+      const rect = el.getBoundingClientRect();
+      ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      plane.constant = -group.current.position.z;
+      if (!raycaster.ray.intersectPlane(plane, clickHit)) return;
+      group.current.worldToLocal(clickHit);
+      // Yalnız loqonun özünə (lokal koordinatda ~2 radius) klik sayılır
+      if (Math.hypot(clickHit.x, clickHit.y) > 2.1) return;
+      mat.uniforms.uBurstAt.value.copy(clickHit);
+      mat.uniforms.uBurst.value = 1;
+      play("burst");
+    };
+    el.addEventListener("click", onClick);
+    return () => el.removeEventListener("click", onClick);
+  }, [gl, camera, raycaster]);
 
   useFrame((state, delta) => {
     const p = Math.min(getSectionProgress(), stops.length - 1);
@@ -188,6 +222,8 @@ export default function LogoMorph() {
     // Materialın öz uniform-larını yeniləyirik (StrictMode useMemo-nu iki dəfə çağıra bilər)
     const u = mat.uniforms;
     u.uReveal.value = Math.min(1, u.uReveal.value + delta * 0.7);
+    // Partlayış ~1 saniyəyə sönür
+    u.uBurst.value *= Math.pow(0.015, delta);
 
     const light = isLight();
     u.uLight.value = lerp(u.uLight.value, light ? 1 : 0, k);

@@ -3,10 +3,11 @@
 import Reveal from "@/components/Reveal";
 import Scramble from "@/components/Scramble";
 import { skillGroups, skills } from "@/lib/data";
-import { useT } from "@/components/LangProvider";
+import { useT, useX } from "@/components/LangProvider";
 
 export default function Skills() {
   const t = useT();
+  const uses = useX().uses;
   const row = [...skills, ...skills];
   const groups = [
     ...skillGroups.map((g) => ({ title: t.skills.groups[g.key], items: g.items as readonly string[] })),
@@ -39,6 +40,16 @@ export default function Skills() {
             </div>
           </Reveal>
         ))}
+        <Reveal delay={groups.length * 0.1}>
+          <div className="glass skill-group uses">
+            <h3>{uses.title}</h3>
+            <ul>
+              {uses.items.map((u) => (
+                <li key={u.name}><strong>{u.name}</strong><span>{u.note}</span></li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

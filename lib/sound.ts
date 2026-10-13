@@ -3,7 +3,7 @@
 
 export const SOUND_KEY = "sound";
 
-export type SoundName = "click" | "key" | "enter" | "error" | "open" | "close" | "toggle" | "success" | "eat" | "gameover" | "powerup" | "powerdown";
+export type SoundName = "click" | "key" | "enter" | "error" | "open" | "close" | "toggle" | "success" | "eat" | "gameover" | "powerup" | "powerdown" | "burst";
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -102,6 +102,11 @@ export function play(name: SoundName, { force = false } = {}) {
     case "click":
       if (retro) tone(ac, { from: 880, to: 440, dur: 0.06, type: "square", gain: 0.12 });
       else tone(ac, { from: 1400, to: 700, dur: 0.05, type: "triangle", gain: 0.5 });
+      break;
+    case "burst":
+      // Hissəciklərin partlaması: qısa "püf" + aşağı enən ton
+      noise(ac, { dur: 0.25, freq: 900, gain: 0.9 });
+      tone(ac, { from: 520, to: 90, dur: 0.35, type: "sine", gain: 0.5 });
       break;
     case "powerup":
       [262, 330, 392, 523, 659, 784, 1047].forEach((f, i) =>

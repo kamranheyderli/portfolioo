@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, Manrope, Pixelify_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -10,6 +10,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Toaster from "@/components/Toaster";
 import KonamiRetro from "@/components/KonamiRetro";
 import TabPresence from "@/components/TabPresence";
+import PwaRegister from "@/components/PwaRegister";
 import { profile } from "@/lib/data";
 import { siteUrl } from "@/lib/site";
 
@@ -25,7 +26,10 @@ const title = `${profile.name} — ${profile.role}`;
 const description =
   "Kamran Heyderli — Front-end Engineer from Baku, Azerbaijan with 3+ years of experience building fast, scalable and user-centered web apps with React, Next.js and TypeScript.";
 
+export const viewport: Viewport = { themeColor: "#07070d" };
+
 export const metadata: Metadata = {
+  appleWebApp: { capable: true, title: "Kamran", statusBarStyle: "black-translucent" },
   metadataBase: new URL(siteUrl),
   title,
   description,
@@ -86,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Toaster />
               <KonamiRetro />
               <TabPresence />
+              <PwaRegister />
             </IntroProvider>
           </LangProvider>
         </ThemeProvider>

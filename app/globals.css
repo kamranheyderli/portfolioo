@@ -558,3 +558,13 @@ body.custom-cursor .matrix { cursor: none; }
   /* Lenis telefonda söndürülüb — anchor linklər brauzerin öz yumşaq scroll-u ilə gedir */
   html { scroll-behavior: smooth; }
 }
+
+/* 404 */
+.nf { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; pointer-events: auto; }
+.nf-code { display: flex; gap: .02em; font-size: clamp(7rem, 26vw, 14rem); line-height: 1; letter-spacing: -0.05em; font-weight: 700; }
+.nf-code span { display: inline-block; }
+.nf h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+.nf p { color: var(--muted); max-width: 420px; line-height: 1.6; margin-bottom: 12px; }
+.skill-group.uses ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.skill-group.uses li { display: flex; flex-direction: column; gap: 2px; font-size: .88rem; }
+.skill-group.uses li span { color: var(--muted); font-size: .8rem; }
