@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, animate } from "framer-motion";
 import { profile } from "@/lib/data";
 import { INTRO_KEY as SESSION_KEY } from "@/lib/initScripts";
@@ -10,7 +10,9 @@ export const useIntro = () => useContext(IntroContext);
 
 export function IntroProvider({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(true);
-  const [count, setCount] = useState(0);
+  // Faiz və zolaq birbaşa DOM-a yazılır: hər kadrda bütün tətbiqi yenidən render etməyə ehtiyac yoxdur
+  const countRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const finish = () => {
@@ -24,33 +26,38 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
     document.documentElement.style.overflow = "hidden";
     const controls = animate(0, 100, {
-      duration: 1.8,
+      duration: 1.1,
       ease: [0.65, 0, 0.35, 1],
-      onUpdate: (v) => setCount(Math.round(v)),
-      onComplete: () => setTimeout(finish, 250),
+      onUpdate: (v) => {
+        if (countRef.current) countRef.current.firstChild!.textContent = String(Math.round(v)).padStart(3, "0");
+        if (barRef.current) barRef.current.style.transform = `scaleX(${v / 100})`;
+      },
+      onComplete: () => setTimeout(finish, 150),
     });
     return () => controls.stop();
   }, []);
 
+  const value = useMemo(() => ({ done: !active }), [active]);
+
   return (
-    <IntroContext.Provider value={{ done: !active }}>
+    <IntroContext.Provider value={value}>
       <AnimatePresence>
         {active && (
           <motion.div
             className="preloader"
             exit={{ clipPath: "inset(0 0 100% 0)" }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
           >
             <div className="preloader-name">
               {profile.name}
               <span>{profile.role}</span>
             </div>
-            <div className="preloader-count">
-              {String(count).padStart(3, "0")}
+            <div className="preloader-count" ref={countRef}>
+              {"000"}
               <small>%</small>
             </div>
             <div className="preloader-bar">
-              <span style={{ transform: `scaleX(${count / 100})` }} />
+              <span ref={barRef} style={{ transform: "scaleX(0)" }} />
             </div>
           </motion.div>
         )}

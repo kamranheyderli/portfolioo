@@ -62,6 +62,7 @@ export default function Particles({ count = 2500 }: { count?: number }) {
   useFrame((state, delta) => {
     const u = material.current.uniforms;
     u.uTime.value += delta;
+    u.uPixelRatio.value = state.gl.getPixelRatio();
     const light = isLight();
     u.uLight.value = THREE.MathUtils.lerp(u.uLight.value, light ? 1 : 0, 0.1);
     material.current.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
